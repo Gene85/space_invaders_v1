@@ -1,6 +1,10 @@
-﻿using System.Collections;
+﻿using JetBrains.Annotations;
+using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class Player : MonoBehaviour
 {
@@ -8,7 +12,10 @@ public class Player : MonoBehaviour
     public float _speed = 3.5f;
     [SerializeField]
     public GameObject _Laser;
-
+    [SerializeField]
+    private bool _IstrippleShotActive = false;
+    [SerializeField]
+    private bool _tripleShotActive = false;
     [SerializeField]
     private float _fireRate = 0.5f;
     [SerializeField]
@@ -16,25 +23,28 @@ public class Player : MonoBehaviour
     [SerializeField]
     private int _numOf_lives = 3;
     private SpawnManager _spawnManager;
+    [SerializeField]
+    public GameObject _TrippleShot;
+    [SerializeField]
+    private GameObject _Tripple_Shot_Powerup;
 
 
     void Start()
     {
         transform.position = new Vector3(0, 0, 0);
-        //find the object > get the component.
-        _spawnManager = GameObject.Find("SpawnManager").GetComponent<SpawnManager>();
-        //_spawnManager.onPlayerDeath
+        _spawnManager = GameObject.FindGameObjectWithTag("SpawnManager").GetComponent<SpawnManager>();
 
-        if( _spawnManager == null )
+        if (_spawnManager == null)
         {
             Debug.LogError("The SpawnManager is NULL!");
         }
+
     }
     void Update()
     {
         CalculateMovement();
 
-        if (Input.GetKeyDown(KeyCode.Space) && Time.time > _canFire)
+        if (Input.GetKey(KeyCode.Mouse0) && Time.time > _canFire)
         {
             FireLaser();
         }
@@ -65,7 +75,17 @@ public class Player : MonoBehaviour
     void FireLaser()
     {
         _canFire = Time.time + _fireRate;
-        GameObject.Instantiate(_Laser, transform.position + new Vector3(0, 0.9f, 0), Quaternion.identity);
+        GameObject.Instantiate(_Laser, transform.position + new Vector3(0, 0.82f, 0), Quaternion.identity);
+
+        if (_IstrippleShotActive == true)
+        {
+            GameObject.Instantiate(_TrippleShot, transform.position + new Vector3(0, 0.12f, 0), Quaternion.identity);
+        }
+        else
+        {
+            GameObject.Instantiate(_Laser, transform.position + new Vector3(0, 0.718f, 0), Quaternion.identity);
+        }
+
     }
 
     public void Damage()
@@ -74,10 +94,25 @@ public class Player : MonoBehaviour
 
         if (_numOf_lives < 1)
         {
-            //communicate with Spawn Manager
-            //Let them know to stop Spawning
-            _spawnManager.OnPlayerDeath();
+            _spawnManager.OnplayerDeath();
             Destroy(this.gameObject);
+        }
+    }
+
+    public void TrippleShotActive()
+    {
+        //tripleShotActive becomes true
+        //start the power down coroutine for triple shot
+        _IstrippleShotActive = true;
+        StartCoroutine(TripleShotPowerDownRoutine());
+
+        // IEnumerator TripleShotPowerDownRoutine
+        // Wait 5 seconds
+        // Set the triple shot to false
+        IEnumerator TripleShotPowerDownRoutine()
+        {
+            yield return new WaitForSeconds(0.7f);
+            _IstrippleShotActive = false;
         }
     }
 }

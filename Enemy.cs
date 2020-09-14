@@ -9,34 +9,19 @@ public class Enemy : MonoBehaviour
 
     void Start()
     {
-        transform.position = new Vector3(0, 5, 0);
-        //gameObject.tag = "Enemy";
-        //gameObject.tag = "Laser";
-        // gameObject.tag = "Player";
-        //currentHealth = max_health;
+        transform.position = new Vector3(0, 8, 0);
     }
 
-    // Update is called once per frame
     void Update()
     {
-        // Move enemy down 4 meters per second
         transform.Translate(Vector3.down * _enemySpeed * Time.deltaTime);
-
-        // if enemy reaches the bottom of the screen
-        // Respawn at top with a new random x position 
-
         if (transform.position.y < -5f)
         {
             float randomX = Random.Range(-8f, 8f);
             transform.position = new Vector3(randomX, 7, 0);
         }
     }
-
-    /*public void TakeDamage(float ammount)
-    {
-        currentHealth -= ammount;
-    }*/
-    private void OnTriggerEnter(Collider other)
+    private void OnTriggerEnter2D(Collider2D other)
     {
         if (other.tag == "Player")
         {
